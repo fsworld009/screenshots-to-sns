@@ -8,8 +8,8 @@
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint",
-    "electron-dev": "NODE_ENV=development electron ./src/electron/main.js",
-    "tsc": "tsc-watch -p ./src/electron/tsconfig.json --onSuccess 'npm run electron-dev'"
+    "electron": "electron ./src/electron/main.js",
+    "tsc-dev": "NODE_ENV=development tsc-watch -p ./src/electron/tsconfig.json --onSuccess 'npm run electron'"
   },
   "dependencies": {
     "core-js": "^3.6.5",

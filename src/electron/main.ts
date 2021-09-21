@@ -24,11 +24,4 @@ async function createWindow() {
     // rest of code..
 }
 app.on("ready", createWindow);
-if (process.env.NODE_ENV === 'development') {
-    // const mainFile = path.join(app.getAppPath(), 'main.js');
-    // console.log('mainFile', mainFile);
-    // hotreload.mainReloader(mainFile, undefined, (error, path) => {
-    //   console.log("It is a main's process hook!");
-    // });
-}
-//# sourceMappingURL=main.js.map
+console.log('process.env.NODE_ENV ', process.env.NODE_ENV);
