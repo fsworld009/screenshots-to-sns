@@ -8,7 +8,8 @@
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint",
-    "electron-dev": "NODE_ENV=development electron ./src/electron/main.js"
+    "electron-dev": "NODE_ENV=development electron ./src/electron/main.js",
+    "tsc": "tsc-watch -p ./src/electron/tsconfig.json --onSuccess 'npm run electron-dev'"
   },
   "dependencies": {
     "core-js": "^3.6.5",
@@ -19,6 +20,7 @@
     "vuex": "^3.4.0"
   },
   "devDependencies": {
+    "@tsconfig/node16": "1.0.2",
     "@types/electron": "1.6.10",
     "@types/jest": "^24.0.19",
     "@typescript-eslint/eslint-plugin": "^4.18.0",
@@ -42,6 +44,7 @@
     "less": "^3.0.4",
     "less-loader": "^5.0.0",
     "lint-staged": "^9.5.0",
+    "tsc-watch": "4.5.0",
     "typescript": "~4.1.5",
     "vue-template-compiler": "^2.6.11"
   },
