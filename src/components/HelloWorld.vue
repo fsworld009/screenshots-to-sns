@@ -32,6 +32,8 @@
       <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
       <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
     </ul>
+    <h3>Test Backend Msg</h3>
+      <a @click="testRequest">Send Request</a>
   </div>
 </template>
 
@@ -41,6 +43,20 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 @Component
 export default class HelloWorld extends Vue {
   @Prop() private msg!: string;
+  /* eslint-disable class-methods-use-this */
+
+  testRequest(): void {
+    window.backend.send('test', { hello: 'world' });
+  }
+
+  mounted(): void {
+    window.backend.on('test', (args) => { console.log('test backend response', args); });
+  }
+
+  beforeDestroy(): void {
+    console.log('remove listeners');
+    window.backend.off('test');
+  }
 }
 </script>
 
