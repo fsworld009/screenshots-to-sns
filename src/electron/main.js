@@ -7,6 +7,8 @@ const {
 const path = require("path");
 const fs = require("fs");
 
+const hotreload = require('electron-hot-reload');
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
@@ -33,3 +35,12 @@ async function createWindow() {
 }
 
 app.on("ready", createWindow);
+
+if (process.env.NODE_ENV === 'development') {
+  const mainFile = path.join(app.getAppPath(), 'main.js');
+  console.log('mainFile', mainFile);
+
+  hotreload.mainReloader(mainFile, undefined, (error, path) => {
+    console.log("It is a main's process hook!");
+  });
+}
