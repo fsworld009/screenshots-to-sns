@@ -7,7 +7,7 @@
     </div>
     <div>
       <label>Images</label>
-      <textarea readonly></textarea>
+      <textarea readonly v-model="files" style="width: 600px;height: 300px;"></textarea>
       <!-- <span class="helper-text">Helper text</span> -->
       <!-- <span class="error">There is an error</span> -->
       <br/>
@@ -25,22 +25,32 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { onMounted, onUnmounted, getCurrentInstance } from '@vue/composition-api';
+import {
+  onMounted,
+  onUnmounted,
+  getCurrentInstance,
+  reactive,
+} from '@vue/composition-api';
 /* eslint-disable class-methods-use-this */
 
 @Component({
-  setup(props, context) {
-    console.log('asdasda');
+  setup() {
+    // https://github.com/vuejs/composition-api/issues/455#issuecomment-761732262
+    const instance = getCurrentInstance();
     onMounted(() => {
       console.log('here');
       window.backend.on('onSelectImages', (data) => {
-        const instance = getCurrentInstance;
-        console.log('get', (data as Record<string, unknown>).files);
+        // TODO: get rid of type casting
+        (instance as any).data.files = (
+          data as any).files;
       });
     });
     onUnmounted(() => {
       window.backend.off('onSelectImages');
     });
+    return {
+      files: reactive([]),
+    };
   },
 })
 export default class Main extends Vue {
