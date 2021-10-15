@@ -38,3 +38,10 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 1. Assuming ffmpeg is available in $PATH
 2. Output is fixed to ~/shortmovies
+
+# TODO
+
+1. Move front-end source codes to src/ui and configure vue-cli to build from that folder
+2. UI
+3. Save / Load configs
+
