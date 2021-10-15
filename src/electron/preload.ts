@@ -2,8 +2,8 @@
 
 import { contextBridge, ipcRenderer } from 'electron';
 
-const validMainChannels = ['test', 'selectImages'];
-const validRendererChannels = ['test', 'onSelectImages'];
+const validMainChannels = ['test', 'selectImages', 'makeVideo'];
+const validRendererChannels = ['test', 'onSelectImages', 'onVideoOutput'];
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld(

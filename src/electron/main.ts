@@ -34,3 +34,7 @@ ipcMain.on('selectImages', (event, args) => {
   const selectedFiles = dialog.showOpenDialogSync(win, { properties: ['openFile', 'multiSelections'] });
   win.webContents.send('onSelectImages', { files: selectedFiles });
 });
+
+ipcMain.on('makeVideo', (event, args) => {
+  console.log('makeVideo', args);
+});

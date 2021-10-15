@@ -32,3 +32,9 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+
+# Limitations
+
+1. Assuming ffmpeg is available in $PATH
+2. Output is fixed to ~/shortmovies

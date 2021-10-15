@@ -18,8 +18,9 @@
       <input type="text" />
     </div>
     <div>
-      <button>Make Video</button>
+      <button v-on:click="makeVideo">Make Video</button>
     </div>
+    {{ progress }}
     </div>
 </template>
 
@@ -30,8 +31,14 @@ import {
   onUnmounted,
   getCurrentInstance,
   reactive,
+  ref,
 } from '@vue/composition-api';
 /* eslint-disable class-methods-use-this */
+
+interface MainData {
+  files: string[],
+  progress: string,
+}
 
 @Component({
   setup() {
@@ -44,12 +51,16 @@ import {
         (instance as any).data.files = (
           data as any).files;
       });
+      window.backend.on('onVideoOutput', (data) => {
+        (instance as any).data.progress = 'done';
+      });
     });
     onUnmounted(() => {
       window.backend.off('onSelectImages');
     });
     return {
       files: reactive([]),
+      progress: ref(''),
     };
   },
 })
@@ -57,6 +68,12 @@ export default class Main extends Vue {
   selectImages(): void {
     console.log('clicked');
     window.backend.send('selectImages');
+  }
+
+  makeVideo(): void {
+    const data = this.$data as MainData;
+    data.progress = 'In Progress';
+    window.backend.send('makeVideo', { files: data.files });
   }
 }
 </script>
