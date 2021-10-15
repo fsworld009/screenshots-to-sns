@@ -2,25 +2,26 @@
 
 import { contextBridge, ipcRenderer } from 'electron';
 
-const validChannels = ['test'];
+const validMainChannels = ['test', 'selectImages'];
+const validRendererChannels = ['test', 'onSelectImages'];
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld(
   'backend', {
-    send: (channel: string, data: Record<string, unknown>) => {
+    send: (channel: string, data: Record<string, unknown> = {}) => {
       // whitelist channels
-      if (validChannels.includes(channel)) {
+      if (validMainChannels.includes(channel)) {
         ipcRenderer.send(channel, data);
       }
     },
     on: (channel: string, callback: (...args: unknown[]) => void) => {
-      if (validChannels.includes(channel)) {
+      if (validRendererChannels.includes(channel)) {
         // Deliberately strip event as it includes `sender`
         ipcRenderer.on(channel, (event, ...args) => callback(...args));
       }
     },
     off: (channel: string) => {
-      if (validChannels.includes(channel)) {
+      if (validRendererChannels.includes(channel)) {
         ipcRenderer.removeAllListeners(channel);
       }
     },

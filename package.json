@@ -9,9 +9,10 @@
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint",
     "electron": "electron ./src/electron/main.js",
-    "tsc-dev": "NODE_ENV=development tsc-watch -p ./src/electron/tsconfig.json --onSuccess 'npm run electron'"
+    "tsc-dev": "export NODE_ENV=development && tsc-watch -p ./src/electron/tsconfig.json --onSuccess 'npm run electron'"
   },
   "dependencies": {
+    "@vue/composition-api": "1.2.4",
     "core-js": "^3.6.5",
     "electron": "14.0.1",
     "vue": "^2.6.11",
