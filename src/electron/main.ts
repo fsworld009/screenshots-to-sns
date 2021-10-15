@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import path from 'path';
+import makeVideo from './ffmpeg';
 
 const IS_DEV = process.env.NODE_ENV === 'development';
 console.log('IS_DEV', IS_DEV);
@@ -35,6 +36,8 @@ ipcMain.on('selectImages', (event, args) => {
   win.webContents.send('onSelectImages', { files: selectedFiles });
 });
 
-ipcMain.on('makeVideo', (event, args) => {
+ipcMain.on('makeVideo', async (event, args) => {
   console.log('makeVideo', args);
+  const outputPath = await makeVideo(args.files);
+  win.webContents.send('onVideoOutput', { outputPath });
 });

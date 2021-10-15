@@ -3,7 +3,7 @@
     "lib": ["esnext"],
     "module": "commonjs",
     "target": "esnext",
-
+    "resolveJsonModule": true,
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,

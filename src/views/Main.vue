@@ -11,6 +11,8 @@
       <!-- <span class="helper-text">Helper text</span> -->
       <!-- <span class="error">There is an error</span> -->
       <br/>
+      {{ JSON.stringify(files, null, 2) }}
+      <br/>
       <button v-on:click="selectImages">Select Images</button>
     </div>
     <div>
@@ -52,11 +54,12 @@ interface MainData {
           data as any).files;
       });
       window.backend.on('onVideoOutput', (data) => {
-        (instance as any).data.progress = 'done';
+        (instance as any).data.progress = `Output: ${(data as any).outputPath}`;
       });
     });
     onUnmounted(() => {
       window.backend.off('onSelectImages');
+      window.backend.off('onVideoOutput');
     });
     return {
       files: reactive([]),
