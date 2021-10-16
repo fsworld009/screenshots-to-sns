@@ -11,6 +11,7 @@ import os from 'os';
 import process from 'process';
 import { execSync } from 'child_process';
 import commandLineArgs from 'command-line-args';
+import glob from 'tiny-glob';
 import printHelp from './help';
 
 const cacheFolder = path.resolve(os.homedir(), 'screenshots-to-clip-cache');
@@ -75,7 +76,7 @@ export default async function makeClip(options: CliOptions): Promise<string> {
       fpsOptions = `-framerate ${fps}`;
   }
 
-  const command = `${ffmpegpath} ${fpsOptions} -start_number 1 -i ${inputPath} ${encodeOptions} ${outputPath}`;
+  const command = `${ffmpegpath} -y ${fpsOptions} -start_number 1 -i ${inputPath} ${encodeOptions} ${outputPath}`;
   console.log(`Running ${command}:`);
   execSync(command);
 
@@ -100,13 +101,37 @@ const optionDefinitions = [
 
 if (require.main === module) {
   const options = commandLineArgs(optionDefinitions) as CliOptions;
-  console.log('options', options);
+  let finalInput: string[] = [];
   if (options.help) {
     printHelp();
     process.exit(0);
   }
-  (async () => {
-    const outputPath = await makeClip(options);
-    console.log(`Clip generated: ${outputPath}`);
-  })();
+  console.log(options);
+  if (options.input.length) {
+    (async () => {
+      for (const input of options.input) {
+        console.log('input', input);
+        const inputFolder = path.dirname(input);
+        const inputFile = path.basename(input);
+        console.log(inputFolder, inputFile);
+
+        // Try to expand glob patterns like *.png, in case the OS doesn't resolve
+        // for us. e.g. Windows doesn't do that
+        const expanded = await glob(inputFile, {
+          cwd: inputFolder,
+          absolute: true,
+        });
+        console.log('expanded', expanded);
+        if (expanded.length) {
+          finalInput = finalInput.concat(expanded);
+        } else {
+          finalInput.push(input);
+        }
+      }
+      options.input = finalInput;
+      console.log('final input', options.input);
+      const outputPath = await makeClip(options);
+      console.log(`Clip generated: ${outputPath}`);
+    })();
+  }
 }

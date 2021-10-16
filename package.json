@@ -6,12 +6,12 @@
     "dev-ui": "npm run serve --prefix src/ui",
     "electron": "electron ./src/electron/main.js",
     "dev-electron": "NODE_ENV=development tsc-watch -p ./src/electron/tsconfig.json --onSuccess 'npm run electron'",
-    "dev-cli": "rm src/cli/*.js && NODE_ENV=development bash test_cli.sh",
+    "dev-cli": "rm -f src/cli/*.js && NODE_ENV=development bash test_cli.sh",
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint",
-    "build-cli": "tsc --project src/cli/tsconfig.json && pkg src/cli/screenshots-to-clip.js --targets node16-macos-x64,node16-linux-x64,node16-win-x64 -o dist/cli/screenshots-to-clip"
+    "build-cli": "rm -f src/cli/*.js && tsc --project src/cli/tsconfig.json && pkg src/cli/screenshots-to-clip.js --targets node16-macos-x64,node16-linux-x64,node16-win-x64 -o dist/cli/screenshots-to-clip"
   },
   "dependencies": {
     "@vue/composition-api": "1.2.4",
@@ -19,7 +19,7 @@
     "command-line-usage": "6.1.1",
     "core-js": "^3.6.5",
     "electron": "14.0.1",
-    "fast-glob": "3.2.7",
+    "tiny-glob": "0.2.9",
     "ts-node": "10.3.0",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.3",
