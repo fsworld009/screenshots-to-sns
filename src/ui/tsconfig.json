@@ -19,7 +19,7 @@
     ],
     "paths": {
       "@/*": [
-        "src/ui/*"
+        "./*"
       ]
     },
     "lib": [
@@ -30,15 +30,13 @@
     ]
   },
   "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.vue",
     "tests/**/*.ts",
     "tests/**/*.tsx"
   ],
   "exclude": [
-    "node_modules",
-    "src/electron/**/*.ts",
-    "src/cli/**/*.ts"
+    "node_modules"
   ]
 }

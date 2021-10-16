@@ -7,9 +7,9 @@ module.exports = {
     config
       .entry('app')
       .clear()
-      .add('./src/ui/main.ts')
+      .add('./main.ts')
       .end();
     config.resolve.alias
-      .set('@', path.join(__dirname, './src'));
+      .set('@', path.join(__dirname, './'));
   },
 };

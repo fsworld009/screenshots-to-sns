@@ -34,3 +34,6 @@ tests/**/*.js
 tests/**/*.js.map
 
 cache
+
+# For cli local dev
+test_cli.sh

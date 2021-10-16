@@ -1,0 +1,16 @@
+{
+  "name": "screen-to-sns-ui",
+  "description": "For vue-cli to recognize this folder is UI project root",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "test:unit": "vue-cli-service test:unit",
+    "test:e2e": "vue-cli-service test:e2e",
+    "lint": "vue-cli-service lint"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-typescript": "~4.5.0"
+  }
+}

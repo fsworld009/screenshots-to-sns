@@ -1,42 +1,44 @@
-# screen-to-sns
+# Screenshots to SNS
 
-## Project setup
-```
-npm install
-```
+WIP
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+## CLI
 
-### Compiles and minifies for production
-```
-npm run build
-```
+Converts images into video clips
 
-### Run your unit tests
-```
-npm run test:unit
-```
+## UI
 
-### Run your end-to-end tests
-```
-npm run test:e2e
-```
+Built with Vue, the main UI
 
-### Lints and fixes files
-```
-npm run lint
-```
+## Electron
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+Render UI in desktop environments.
 
 
-# TODO
+## Development
 
-1. Move front-end source codes to src/ui and configure vue-cli to build from that folder
-2. UI
-3. Save / Load configs
+### Electron+UI
+```bash
+npm run dev-ui
+npm run dev-electron
+```
 
+### CLI
+
+create test_cli.sh to test cli arguments, e.g.
+```bash
+npx ts-node src/cli/screenshots-to-clip.ts -f ffmpeg -i ~/screenshots/*.png -o ~/Videos/clip1.mp4 -l 30
+```
+
+then run `npm run dev-cli`
+
+
+## Build
+
+?
+
+
+## TODO
+
+1. Complete UI, integrate CLI to UI
+2. SNS integration
