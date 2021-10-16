@@ -7,12 +7,13 @@
 
 import { promises as fs } from 'fs';
 import path from 'path';
+import os from 'os';
 import process from 'process';
 import { execSync } from 'child_process';
 import commandLineArgs from 'command-line-args';
 import printHelp from './help';
 
-const cacheFolder = path.resolve(__dirname, '../../cache/');
+const cacheFolder = path.resolve(os.homedir(), 'screenshots-to-clip-cache');
 
 interface CliOptions {
   help: boolean;
@@ -23,14 +24,23 @@ interface CliOptions {
 }
 
 /* eslint-disable no-restricted-syntax, no-await-in-loop, guard-for-in */
-export default async function makeClip(options: CliOptions): Promise<string> {
-  const files = options.input.sort();
-
+async function deleteCache() {
+  try {
+    await fs.readdir(cacheFolder);
+  } catch (err) {
+    await fs.mkdir(cacheFolder);
+  }
   // delete old cache
   const cacheFiles = await fs.readdir(cacheFolder);
   for (const file of cacheFiles) {
     await fs.unlink(path.resolve(cacheFolder, file));
   }
+}
+
+export default async function makeClip(options: CliOptions): Promise<string> {
+  const files = options.input.sort();
+
+  await deleteCache();
   // copy to cache folder
   let ext;
   for (let index = 0; index < files.length; index += 1) {
@@ -68,6 +78,9 @@ export default async function makeClip(options: CliOptions): Promise<string> {
   const command = `${ffmpegpath} ${fpsOptions} -start_number 1 -i ${inputPath} ${encodeOptions} ${outputPath}`;
   console.log(`Running ${command}:`);
   execSync(command);
+
+  await deleteCache();
+
   return outputPath;
 }
 
@@ -87,12 +100,12 @@ const optionDefinitions = [
 
 if (require.main === module) {
   const options = commandLineArgs(optionDefinitions) as CliOptions;
+  console.log('options', options);
   if (options.help) {
     printHelp();
     process.exit(0);
   }
   (async () => {
-    console.log('testing');
     const outputPath = await makeClip(options);
     console.log(`Clip generated: ${outputPath}`);
   })();
