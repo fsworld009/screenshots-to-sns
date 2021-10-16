@@ -106,29 +106,29 @@ if (require.main === module) {
     printHelp();
     process.exit(0);
   }
-  console.log(options);
-  if (options.input.length) {
-    (async () => {
-      for (const input of options.input) {
-        const inputFolder = path.dirname(input);
-        const inputFile = path.basename(input);
-
-        // Try to expand glob patterns like *.png, in case the OS doesn't resolve
-        // for us. e.g. Windows doesn't do that
-        const expanded = await glob(inputFile, {
-          cwd: inputFolder,
-          absolute: true,
-        });
-        console.log('expanded', expanded);
-        if (expanded.length) {
-          finalInput = finalInput.concat(expanded);
-        } else {
-          finalInput.push(input);
-        }
-      }
-      options.input = finalInput;
-      const outputPath = await makeClip(options);
-      console.log(`Clip generated: ${outputPath}`);
-    })();
+  if (!options.input) {
+    console.log('Missing -i or --input options');
+    process.exit(0);
   }
+  (async () => {
+    for (const input of options.input) {
+      const inputFolder = path.dirname(input);
+      const inputFile = path.basename(input);
+
+      // Try to expand glob patterns like *.png, in case the OS doesn't resolve
+      // for us. e.g. Windows doesn't do that
+      const expanded = await glob(inputFile, {
+        cwd: inputFolder,
+        absolute: true,
+      });
+      if (expanded.length) {
+        finalInput = finalInput.concat(expanded);
+      } else {
+        finalInput.push(input);
+      }
+    }
+    options.input = finalInput;
+    const outputPath = await makeClip(options);
+    console.log(`Clip generated: ${outputPath}`);
+  })();
 }
