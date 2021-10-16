@@ -34,11 +34,6 @@ npm run lint
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
 
-# Limitations
-
-1. Assuming ffmpeg is available in $PATH
-2. Output is fixed to ~/shortmovies
-
 # TODO
 
 1. Move front-end source codes to src/ui and configure vue-cli to build from that folder
