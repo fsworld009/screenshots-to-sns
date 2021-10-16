@@ -20,7 +20,6 @@ interface CliOptions {
   input: string[];
   output: string;
   length: number;
-  ext: string;
 }
 
 /* eslint-disable no-restricted-syntax, no-await-in-loop, guard-for-in */
@@ -46,7 +45,27 @@ export default async function makeClip(options: CliOptions): Promise<string> {
   const clipLength = options.length || 30; // seconds
   const fps = files.length / clipLength;
   const inputPath = path.resolve(cacheFolder, `%03d${ext}`);
-  const command = `ffmpeg -framerate ${fps} -start_number 1 -i ${inputPath} -c:v libx264 -pix_fmt yuv420p ${outputPath}`;
+  const ffmpegpath = options.ffmpegpath || 'ffmpeg';
+
+  let encodeOptions;
+  let fpsOptions = '';
+  switch (path.extname(outputPath)) {
+    case '.gif':
+      // https://superuser.com/a/556031
+      // https://ffmpeg.org/ffmpeg-filters.html#setpts_002c-asetpts
+      encodeOptions = `-loop 0 -f gif -vf "setpts=N/(${fps}*TB),split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse"`;
+      break;
+    case '.apng': case '.png':
+      // https://stackoverflow.com/a/48145022
+      // TODO: figure out how to reduce output size
+      encodeOptions = ` -plays 1 -f apng -vf "setpts=N/(${fps}*TB)" -compression_level 9 -flags -ildct`;
+      break;
+    default:
+      encodeOptions = '-c:v libx264 -pix_fmt yuv420p';
+      fpsOptions = `-framerate ${fps}`;
+  }
+
+  const command = `${ffmpegpath} ${fpsOptions} -start_number 1 -i ${inputPath} ${encodeOptions} ${outputPath}`;
   console.log(`Running ${command}:`);
   execSync(command);
   return outputPath;

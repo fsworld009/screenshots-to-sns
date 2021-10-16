@@ -29,11 +29,6 @@ const sections = [
         description: 'Length of the output clip, defaults to 30 seconds',
       },
       {
-        name: 'ext -e',
-        typeLabel: '{underline file_extension}',
-        description: 'Output format, supported extensions: mp4, gif, apng. Defaults to mp4',
-      },
-      {
         name: 'help -h',
         typeLabel: ' ',
         description: 'Print this usage guide.',
