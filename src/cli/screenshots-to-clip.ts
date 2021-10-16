@@ -110,10 +110,8 @@ if (require.main === module) {
   if (options.input.length) {
     (async () => {
       for (const input of options.input) {
-        console.log('input', input);
         const inputFolder = path.dirname(input);
         const inputFile = path.basename(input);
-        console.log(inputFolder, inputFile);
 
         // Try to expand glob patterns like *.png, in case the OS doesn't resolve
         // for us. e.g. Windows doesn't do that
@@ -129,7 +127,6 @@ if (require.main === module) {
         }
       }
       options.input = finalInput;
-      console.log('final input', options.input);
       const outputPath = await makeClip(options);
       console.log(`Clip generated: ${outputPath}`);
     })();
