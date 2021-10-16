@@ -67,6 +67,7 @@ interface MainData {
     };
   },
 })
+
 export default class Main extends Vue {
   selectImages(): void {
     console.log('clicked');
