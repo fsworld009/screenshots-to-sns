@@ -38,8 +38,9 @@ async function deleteCache() {
   }
 }
 
-export default async function makeClip(options: CliOptions): Promise<string> {
+/* export default async function makeClip(options: CliOptions): Promise<string> {
   const files = options.input.sort();
+  console.log('options', options);
 
   await deleteCache();
   // copy to cache folder
@@ -83,6 +84,51 @@ export default async function makeClip(options: CliOptions): Promise<string> {
   await deleteCache();
 
   return outputPath;
+} */
+
+export default async function makeClip(options: CliOptions): Promise<string> {
+  // command based on https://gist.github.com/anguyen8/d0630b6aef6c1cd79b9a1341e88a573e
+  // only support mp4 now
+  const numOfFiles = options.input.length;
+  const imagePaths = options.input;
+  const videoLength = options.length || 30; // unit: s
+  const fps = videoLength / (numOfFiles * 2 - 1);
+  const breakLine = '\\\n';
+
+  const ffmpegInput: string[] = [];
+  imagePaths.forEach((input) => {
+    ffmpegInput.push(`-loop 1 -t ${fps} -i ${input} ${breakLine}`);
+  });
+  const ffmpegFilters: string[] = [];
+  const filterLastLine: string[] = [];
+  for (let i = 0; i < imagePaths.length - 1; i += 1) {
+    const frame = `[${i}:v]`;
+    const nextFrame = `[${i + 1}:v]`;
+    const transition = `[b${i + 1}v]`;
+    ffmpegFilters.push(
+      `${nextFrame}${frame}blend=all_expr='A*(if(`
+      + `gte(T,${fps}),1,T/${fps}))+B*(1-(if(`
+      + `gte(T,${fps}),1,T/${fps})))'${transition}; ${breakLine}`,
+    );
+    filterLastLine.push(`${frame}${transition}`);
+  }
+  // last [n:v] and other constants
+  filterLastLine.push(`[${numOfFiles - 1}:v]`);
+  filterLastLine.push(`concat=n=${2 * numOfFiles - 1}:v=1:a=0,format=yuv420p[v]`);
+  console.log('ffmpegFilters', ffmpegFilters);
+  console.log('filterLastLine', filterLastLine);
+
+  const outputPath = path.resolve(process.cwd(), options.output);
+  const ffmpegpath = options.ffmpegpath || 'ffmpeg';
+  const command = `${ffmpegpath} -y ${breakLine}${ffmpegInput.join('')}`
+    + ` -filter_complex "${ffmpegFilters.join('')}${filterLastLine.join('')}"`
+    + ` -map "[v]" ${outputPath}`;
+  console.log('command', command);
+
+  console.log('running');
+  execSync(command);
+
+  return outputPath;
 }
 
 const optionDefinitions = [
@@ -122,7 +168,7 @@ if (require.main === module) {
         absolute: true,
       });
       if (expanded.length) {
-        finalInput = finalInput.concat(expanded);
+        finalInput = finalInput.concat(expanded.sort());
       } else {
         finalInput.push(input);
       }
