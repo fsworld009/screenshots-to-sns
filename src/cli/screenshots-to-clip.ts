@@ -115,17 +115,14 @@ export default async function makeClip(options: CliOptions): Promise<string> {
   // last [n:v] and other constants
   filterLastLine.push(`[${numOfFiles - 1}:v]`);
   filterLastLine.push(`concat=n=${2 * numOfFiles - 1}:v=1:a=0,format=yuv420p[v]`);
-  console.log('ffmpegFilters', ffmpegFilters);
-  console.log('filterLastLine', filterLastLine);
 
   const outputPath = path.resolve(process.cwd(), options.output);
   const ffmpegpath = options.ffmpegpath || 'ffmpeg';
   const command = `${ffmpegpath} -y ${breakLine}${ffmpegInput.join('')}`
     + ` -filter_complex "${ffmpegFilters.join('')}${filterLastLine.join('')}"`
     + ` -map "[v]" ${outputPath}`;
-  console.log('command', command);
-
-  console.log('running');
+  // console.debug('command', command);
+  console.log('Generating video...');
   execSync(command);
 
   return outputPath;

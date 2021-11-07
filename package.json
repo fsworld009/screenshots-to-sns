@@ -11,7 +11,7 @@
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint",
-    "build-cli-linux": "rm -f src/cli/*.js && tsc --project src/cli/tsconfig.json && pkg src/cli/screenshots-to-clip.js --targets node16-linux-x64 -o dist/cli/screenshots-to-clip",
+    "build-cli-linux": "rm -f src/cli/*.js && tsc --project src/cli/tsconfig.json && pkg src/cli/screenshots-to-clip.js --targets node16-linux-x64 -o dist/cli/screenshots-to-clip-linux",
     "build-cli-windows": "del src\\cli\\*.js 2>nul && tsc --project src\\cli\\tsconfig.json && pkg src\\cli\\screenshots-to-clip.js --targets node16-win-x64 -o dist\\cli\\screenshots-to-clip"
   },
   "dependencies": {
