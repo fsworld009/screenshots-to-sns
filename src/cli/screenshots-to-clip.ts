@@ -89,7 +89,7 @@ async function deleteCache() {
 async function generatePartClip(imagePaths: string[], fps: number, ffmpegPath: string, counter: number): Promise<string> {
   const BREAK_LINE = '\\\n';
   const inputs = imagePaths.map(
-    (p) => `-loop 1 -t ${fps} -i "${p}" ${BREAK_LINE}`,
+    (p) => `-loop 1 -t ${fps} -i "${p}" `,
   );
   const filters = [];
   const concats = [];
