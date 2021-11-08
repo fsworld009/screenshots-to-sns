@@ -86,6 +86,40 @@ async function deleteCache() {
   return outputPath;
 } */
 
+async function generatePartClip(imagePaths: string[], fps: number, ffmpegPath: string, counter: number): Promise<string> {
+  const BREAK_LINE = '\\\n';
+  const inputs = imagePaths.map(
+    (p) => `-loop 1 -t ${fps} -i "${p}" ${BREAK_LINE}`,
+  );
+  const filters = [];
+  const concats = [];
+  for (let i = 0; i < imagePaths.length; i += 1) {
+    concats.push(`[${i}:v]`);
+    if (i !== imagePaths.length - 1) {
+      filters.push(`[${i + 1}:v][${i}:v]blend=all_expr='A*(if(`
+      + `gte(T,${fps}),1,T/${fps}))+B*(1-(if(`
+      + `gte(T,${fps}),1,T/${fps})))'[b${i}v];`);
+      concats.push(`[b${i}v]`);
+    }
+  }
+
+  const filterScriptPath = path.resolve(cacheFolder, 'filter_complex.txt');
+  await fs.writeFile(
+    filterScriptPath,
+    `${filters.join('\n')}\n${concats.join('')}`
+    + `concat=n=${2 * imagePaths.length - 1}:v=1:a=0,format=yuv420p[v]`,
+  );
+
+  const outputPath = path.resolve(cacheFolder, `temp_${counter}.mp4`);
+  const command = `${ffmpegPath} -y ${inputs.join('')}`
+    + ` -filter_complex_script "${filterScriptPath}"`
+    + ` -map "[v]" ${outputPath}`;
+  // console.log('command::', command);
+  console.log('Generating part clip', counter + 1, '::');
+  execSync(command);
+  return outputPath;
+}
+
 export default async function makeClip(options: CliOptions): Promise<string> {
   // command based on https://gist.github.com/anguyen8/d0630b6aef6c1cd79b9a1341e88a573e
   // only support mp4 now
@@ -93,38 +127,43 @@ export default async function makeClip(options: CliOptions): Promise<string> {
   const imagePaths = options.input;
   const videoLength = options.length || 30; // unit: s
   const fps = videoLength / (numOfFiles * 2 - 1);
-  const breakLine = '\\\n';
+  const ffmpegPath = options.ffmpegpath || 'ffmpeg';
+  const PART_SIZE = 20;
 
-  const ffmpegInput: string[] = [];
-  imagePaths.forEach((input) => {
-    ffmpegInput.push(`-loop 1 -t ${fps} -i ${input} ${breakLine}`);
-  });
-  const ffmpegFilters: string[] = [];
-  const filterLastLine: string[] = [];
-  for (let i = 0; i < imagePaths.length - 1; i += 1) {
-    const frame = `[${i}:v]`;
-    const nextFrame = `[${i + 1}:v]`;
-    const transition = `[b${i + 1}v]`;
-    ffmpegFilters.push(
-      `${nextFrame}${frame}blend=all_expr='A*(if(`
-      + `gte(T,${fps}),1,T/${fps}))+B*(1-(if(`
-      + `gte(T,${fps}),1,T/${fps})))'${transition}; ${breakLine}`,
-    );
-    filterLastLine.push(`${frame}${transition}`);
+  await deleteCache();
+
+  let start = 0;
+  let partCounter = 0;
+  const partFiles: string[] = [];
+  while (start < numOfFiles) {
+    let end = start + PART_SIZE;
+    if (end >= numOfFiles) {
+      end = numOfFiles;
+    }
+    partFiles.push(await generatePartClip(
+      imagePaths.slice(start, end),
+      fps,
+      ffmpegPath,
+      partCounter,
+    ));
+
+    // next
+    start = end;
+    partCounter += 1;
   }
-  // last [n:v] and other constants
-  filterLastLine.push(`[${numOfFiles - 1}:v]`);
-  filterLastLine.push(`concat=n=${2 * numOfFiles - 1}:v=1:a=0,format=yuv420p[v]`);
+  const concatInputFilePath = path.resolve(cacheFolder, 'concat_input.txt');
+  await fs.writeFile(
+    concatInputFilePath,
+    partFiles.map((p) => `file '${p}'\n`),
+  );
 
   const outputPath = path.resolve(process.cwd(), options.output);
-  const ffmpegpath = options.ffmpegpath || 'ffmpeg';
-  const command = `${ffmpegpath} -y ${breakLine}${ffmpegInput.join('')}`
-    + ` -filter_complex "${ffmpegFilters.join('')}${filterLastLine.join('')}"`
-    + ` -map "[v]" ${outputPath}`;
-  // console.debug('command', command);
-  console.log('Generating video...');
-  execSync(command);
+  const command = `${ffmpegPath} -y -f concat -safe 0`
+    + ` -i "${concatInputFilePath}" -c copy ${outputPath}`;
 
+  console.log('Generating Final Clip::');
+  execSync(command);
+  await deleteCache();
   return outputPath;
 }
 
