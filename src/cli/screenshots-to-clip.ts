@@ -86,13 +86,12 @@ async function deleteCache() {
   return outputPath;
 } */
 
-async function generatePartClip(imagePaths: string[], fps: number, ffmpegPath: string, counter: number): Promise<string> {
+async function generatePartClip(
+  imagePaths: string[], nextPartFirstFramePath: string | null, fps: number, ffmpegPath: string, counter: number): Promise<string> {
   const BREAK_LINE = '\\\n';
-  const inputs = imagePaths.map(
-    (p) => `-loop 1 -t ${fps} -i "${p}" `,
-  );
   const filters = [];
   const concats = [];
+  let concatCount = 2 * imagePaths.length - 1;
   for (let i = 0; i < imagePaths.length; i += 1) {
     concats.push(`[${i}:v]`);
     if (i !== imagePaths.length - 1) {
@@ -103,11 +102,27 @@ async function generatePartClip(imagePaths: string[], fps: number, ffmpegPath: s
     }
   }
 
+  // Add the last crossfade between the last frame of current part
+  // and the first frame of the next part
+  let inputs = imagePaths.concat([]);
+  if (nextPartFirstFramePath) {
+    concatCount += 1;
+    const id = imagePaths.length;
+    inputs.push(nextPartFirstFramePath);
+    filters.push(`[${id}:v][${id - 1}:v]blend=all_expr='A*(if(`
+      + `gte(T,${fps}),1,T/${fps}))+B*(1-(if(`
+      + `gte(T,${fps}),1,T/${fps})))'[b${id}v];`);
+    concats.push(`[b${id}v]`);
+  }
+  inputs = inputs.map(
+    (p) => `-loop 1 -t ${fps} -i "${p}" `,
+  );
+
   const filterScriptPath = path.resolve(cacheFolder, 'filter_complex.txt');
   await fs.writeFile(
     filterScriptPath,
     `${filters.join('\n')}\n${concats.join('')}`
-    + `concat=n=${2 * imagePaths.length - 1}:v=1:a=0,format=yuv420p[v]`,
+    + `concat=n=${concatCount}:v=1:a=0,format=yuv420p[v]`,
   );
 
   const outputPath = path.resolve(cacheFolder, `temp_${counter}.mp4`);
@@ -142,6 +157,7 @@ export default async function makeClip(options: CliOptions): Promise<string> {
     }
     partFiles.push(await generatePartClip(
       imagePaths.slice(start, end),
+      imagePaths[end] || null,
       fps,
       ffmpegPath,
       partCounter,
